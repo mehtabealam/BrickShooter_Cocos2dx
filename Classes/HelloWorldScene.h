@@ -44,8 +44,11 @@ public:
     
 private:
     cocos2d::PhysicsWorld *sceneWorld;
+    cocos2d::Node *_pedal;
     
     void SetPhysicsWorld( cocos2d::PhysicsWorld *world ) { sceneWorld = world; };
+    bool onTouchBegan(cocos2d::Touch *touch, cocos2d::Event *event);
+    void onTouchMoved(cocos2d::Touch *touch, cocos2d::Event *event);
     
 };
 

@@ -70,7 +70,7 @@ bool HelloWorld::init()
         this->addChild( edgeNode );
     
     
-     auto ballBody = PhysicsBody::createCircle(10, PhysicsMaterial(1, 1.5, 0));
+     auto ballBody = PhysicsBody::createCircle(10, PhysicsMaterial(1, 1, 0));
     ballBody->setMass(1);
     ballBody->setGravityEnable(true);
     auto ballNode = Node::create();
@@ -79,6 +79,14 @@ bool HelloWorld::init()
     ballNode->setPhysicsBody(ballBody);
     this->addChild(ballNode);
     this->addPedalController();
+    
+    
+    
+    EventListenerTouchOneByOne *listener = EventListenerTouchOneByOne::create();
+        listener->onTouchBegan = CC_CALLBACK_2(HelloWorld::onTouchBegan, this);
+        listener->onTouchMoved = CC_CALLBACK_2(HelloWorld::onTouchMoved, this);
+        
+        _eventDispatcher->addEventListenerWithSceneGraphPriority(listener, this);
     return true;
 }
 
@@ -89,8 +97,29 @@ void HelloWorld::addPedalController() {
     pedalBody->setDynamic(false);
     pedalBody->setMass(2);
     pedalBody->setGravityEnable(false);
-       auto pedalNode = Node::create();
-    pedalNode ->setPosition( Point( visibleSize.width / 2 + origin.x, 20 ) );
-    pedalNode->setPhysicsBody(pedalBody);
-       this->addChild(pedalNode);
+    _pedal = Sprite::create("HelloWorld.png");
+//    _pedal->setContentSize(Size(visibleSize.width * 0.4, 100));
+    _pedal ->setPosition( Point( visibleSize.width / 2 + origin.x, 20 ) );
+    _pedal->setPhysicsBody(pedalBody);
+       this->addChild(_pedal);
+}
+
+bool HelloWorld::onTouchBegan(Touch *touch, Event *event)
+{    Point touchLoc = touch->getLocation();
+    auto point = this->convertToNodeSpace(touchLoc);
+    if (_pedal->getBoundingBox().containsPoint(point))
+    {
+        return true;
+    }
+    return false;
+}
+
+void HelloWorld::onTouchMoved(Touch *touch, Event *event)
+{
+    Vec2 leftLimit = Vec2(_pedal->getContentSize().width * 0.5, _pedal->getPositionY());
+    Vec2 rightLimit = Vec2(this->getContentSize().width - _pedal->getContentSize().width * 0.5, _pedal->getPositionY());
+    Vec2 Pos = Vec2(_pedal->getPosition().x + touch->getDelta().x, _pedal->getPositionY());
+    Pos.clamp(leftLimit, rightLimit);
+    _pedal->setPosition(Pos);
+    
 }
